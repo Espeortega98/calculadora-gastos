@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora de gastos en pareja</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --muted:#94a3b8;
+      --text:#f8fafc;
+      --line:rgba(255,255,255,.12);
+      --javi:#38bdf8;
+      --espe:#fb4d8b;
+      --shadow: 0 20px 60px rgba(0,0,0,.35);
+      --radius:22px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,.18), transparent 35%),
+        radial-gradient(circle at top right, rgba(251,77,139,.16), transparent 32%),
+        var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      padding:28px;
+    }
+
+    .app{max-width:1180px;margin:0 auto}
+
+    header{
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      align-items:flex-start;
+      margin-bottom:22px;
+    }
+
+    h1{
+      margin:0 0 8px;
+      font-size:clamp(28px,4vw,46px);
+      letter-spacing:-.04em;
+      line-height:1;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      max-width:760px;
+      font-size:15px;
+      line-height:1.5;
+    }
+
+    .pill{
+      background:rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      padding:10px 14px;
+      border-radius:999px;
+      color:var(--muted);
+      font-size:13px;
+      white-space:nowrap;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:20px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .person{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      align-items:end;
+    }
+
+    label{
+      display:block;
+      color:#dbeafe;
+      font-size:13px;
+      font-weight:700;
+      margin:0 0 8px;
+    }
+
+    input, select{
+      width:100%;
+      background:rgba(15,23,42,.86);
+      border:1px solid rgba(255,255,255,.2);
+      color:var(--text);
+      border-radius:12px;
+      padding:12px 12px;
+      font-size:15px;
+      outline:none;
+    }
+
+    input:focus, select:focus{
+      border-color:rgba(56,189,248,.9);
+      box-shadow:0 0 0 3px rgba(56,189,248,.13);
+    }
+
+    .name{
+      font-size:20px;
+      font-weight:900;
+      margin:0 0 16px;
+    }
+
+    .javi{color:var(--javi)}
+    .espe{color:var(--espe)}
+
+    .monthly{
+      margin-top:14px;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:900;
+      font-size:14px;
+    }
+
+    .monthly.javi{background:rgba(56,189,248,.15);color:#7dd3fc}
+    .monthly.espe{background:rgba(251,77,139,.15);color:#f9a8d4}
+
+    .bar-wrap{margin:18px 0 12px}
+
+    .bar{
+      height:18px;
+      border-radius:999px;
+      overflow:hidden;
+      background:rgba(255,255,255,.09);
+      display:flex;
+      border:1px solid rgba(255,255,255,.15);
+    }
+
+    .bar-javi{background:linear-gradient(90deg,#0284c7,#38bdf8)}
+    .bar-espe{background:linear-gradient(90deg,#fb4d8b,#f472b6)}
+
+    .bar-labels{
+      display:flex;
+      justify-content:space-between;
+      color:var(--muted);
+      font-size:14px;
+      font-weight:800;
+      margin-top:8px;
+    }
+
+    .tabs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin:18px 0;
+    }
+
+    button{
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      padding:11px 14px;
+      border-radius:12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    button:hover{background:rgba(255,255,255,.13)}
+    button.active{background:#f8fafc;color:#0f172a}
+    button.danger{color:#fecaca}
+    button.small{padding:8px 10px;border-radius:10px;font-size:13px}
+
+    .summary{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    .metric{
+      background:rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      padding:18px;
+      border-radius:18px;
+    }
+
+    .metric .k{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:800;
+      margin-bottom:8px;
+    }
+
+    .metric .v{
+      font-size:28px;
+      font-weight:950;
+      letter-spacing:-.04em;
+    }
+
+    .metric .sub{
+      margin-top:5px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .category{
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      margin-bottom:14px;
+    }
+
+    .category-head{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      margin-bottom:14px;
+    }
+
+    .category-title{
+      flex:1;
+      font-weight:950;
+      font-size:17px;
+      background:rgba(15,23,42,.55);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:12px;
+      padding:12px;
+      color:var(--text);
+    }
+
+    .category-total,.individual-total{
+      font-weight:950;
+      white-space:nowrap;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns:1fr 150px 40px;
+      gap:10px;
+      margin-bottom:10px;
+      align-items:center;
+    }
+
+    .row.header{
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:var(--muted);
+    }
+
+    .add-row{
+      color:#dbeafe;
+      font-weight:900;
+      margin-top:8px;
+      display:inline-block;
+      cursor:pointer;
+    }
+
+    .table{
+      width:100%;
+      border-collapse:collapse;
+      overflow:hidden;
+      border-radius:16px;
+    }
+
+    .table th,.table td{
+      border-bottom:1px solid var(--line);
+      padding:14px 10px;
+      text-align:left;
+      font-size:14px;
+    }
+
+    .table th{
+      color:var(--muted);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    .right{text-align:right!important}
+    .muted{color:var(--muted)}
+    .hidden{display:none}
+
+    .free-grid,.individual-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:16px;
+    }
+
+    .free-card,.individual-card{
+      background:rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+    }
+
+    .free-card h3,.individual-head h3{
+      margin:0 0 8px;
+      font-size:18px;
+    }
+
+    .individual-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .big-number{
+      font-size:42px;
+      font-weight:950;
+      letter-spacing:-.05em;
+      margin:4px 0;
+    }
+
+    .note{
+      background:rgba(34,197,94,.12);
+      border:1px solid rgba(34,197,94,.25);
+      color:#bbf7d0;
+      padding:14px;
+      border-radius:14px;
+      margin-top:14px;
+      font-size:14px;
+      line-height:1.45;
+    }
+
+    .warn-note{
+      background:rgba(245,158,11,.12);
+      border:1px solid rgba(245,158,11,.25);
+      color:#fde68a;
+      padding:14px;
+      border-radius:14px;
+      margin-top:14px;
+      font-size:14px;
+      line-height:1.45;
+    }
+
+    footer{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:18px;
+      line-height:1.5;
+    }
+
+    @media (max-width:850px){
+      body{padding:16px}
+      header{display:block}
+      .grid,.summary,.free-grid,.individual-grid{grid-template-columns:1fr}
+      .person{grid-template-columns:1fr}
+      .row{grid-template-columns:1fr 120px 40px}
+      .pill{display:inline-block;margin-top:14px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>Calculadora de gastos en pareja</h1>
+        <p class="subtitle">
+          Reparte los gastos compartidos de forma proporcional a los ingresos de cada uno.
+          Plantilla pública sin datos reales predefinidos.
+        </p>
+      </div>
+      <div class="pill">Plantilla editable</div>
+    </header>
+
+    <section class="grid">
+      <div class="card">
+        <p class="name javi">Persona 1</p>
+        <div class="person">
+          <div>
+            <label>Salario (€ por paga)</label>
+            <input id="salaryA" type="number" value="0" min="0" step="1">
+          </div>
+          <div>
+            <label>Nº de pagas</label>
+            <select id="paysA">
+              <option value="12" selected>12 pagas</option>
+              <option value="14">14 pagas</option>
+            </select>
+          </div>
+        </div>
+        <div id="monthlyA" class="monthly javi"></div>
+      </div>
+
+      <div class="card">
+        <p class="name espe">Persona 2</p>
+        <div class="person">
+          <div>
+            <label>Salario (€ por paga)</label>
+            <input id="salaryB" type="number" value="0" min="0" step="1">
+          </div>
+          <div>
+            <label>Nº de pagas</label>
+            <select id="paysB">
+              <option value="12" selected>12 pagas</option>
+              <option value="14">14 pagas</option>
+            </select>
+          </div>
+        </div>
+        <div id="monthlyB" class="monthly espe"></div>
+      </div>
+    </section>
+
+    <div class="bar-wrap">
+      <div class="bar">
+        <div id="barA" class="bar-javi"></div>
+        <div id="barB" class="bar-espe"></div>
+      </div>
+      <div class="bar-labels">
+        <span id="pctA"></span>
+        <span id="pctB"></span>
+      </div>
+    </div>
+
+    <nav class="tabs">
+      <button id="tabExpenses" class="active" onclick="showTab('expenses')">Gastos compartidos</button>
+      <button id="tabSummary" onclick="showTab('summary')">Resumen</button>
+      <button id="tabIndividual" onclick="showTab('individual')">Gastos individuales</button>
+      <button id="tabFree" onclick="showTab('free')">Dinero libre</button>
+    </nav>
+
+    <section id="summaryCards" class="summary"></section>
+
+    <section id="expensesPanel" class="card">
+      <div id="categories"></div>
+      <button onclick="addCategory()">+ Añadir categoría</button>
+    </section>
+
+    <section id="summaryPanel" class="card hidden">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Categoría</th>
+            <th class="right">Total</th>
+            <th class="right">Paga Persona 1</th>
+            <th class="right">Paga Persona 2</th>
+          </tr>
+        </thead>
+        <tbody id="summaryTable"></tbody>
+      </table>
+    </section>
+
+    <section id="individualPanel" class="card hidden">
+      <div class="individual-grid">
+        <div class="individual-card">
+          <div class="individual-head">
+            <h3 class="javi">Gastos individuales de Persona 1</h3>
+            <div id="individualTotalA" class="individual-total"></div>
+          </div>
+          <div id="individualRowsA"></div>
+          <button onclick="addIndividualRow('A')">+ Añadir gasto de Persona 1</button>
+        </div>
+
+        <div class="individual-card">
+          <div class="individual-head">
+            <h3 class="espe">Gastos individuales de Persona 2</h3>
+            <div id="individualTotalB" class="individual-total"></div>
+          </div>
+          <div id="individualRowsB"></div>
+          <button onclick="addIndividualRow('B')">+ Añadir gasto de Persona 2</button>
+        </div>
+      </div>
+
+      <div class="note">
+        Estos gastos no se reparten: se restan solo del dinero libre de cada persona.
+      </div>
+    </section>
+
+    <section id="freePanel" class="card hidden">
+      <div class="free-grid">
+        <div class="free-card">
+          <h3 class="javi">Persona 1</h3>
+          <div id="freeA" class="big-number" style="color:var(--javi)"></div>
+          <div id="freeADetail" class="muted"></div>
+        </div>
+        <div class="free-card">
+          <h3 class="espe">Persona 2</h3>
+          <div id="freeB" class="big-number" style="color:var(--espe)"></div>
+          <div id="freeBDetail" class="muted"></div>
+        </div>
+      </div>
+      <div id="advice"></div>
+    </section>
+
+    <footer>
+      Los datos que escribas en la web no se guardan en ningún servidor. Solo viven en tu navegador mientras usas la página.
+    </footer>
+  </div>
+
+  <script>
+    const state = {
+      individualA: [
+        {name:'Gasto individual 1', amount:0},
+        {name:'Gasto individual 2', amount:0}
+      ],
+      individualB: [
+        {name:'Gasto individual 1', amount:0},
+        {name:'Gasto individual 2', amount:0}
+      ],
+      categories: [
+        {
+          name: 'Vivienda',
+          rows: [
+            {name:'Alquiler', amount:0},
+            {name:'Luz', amount:0},
+            {name:'Agua', amount:0},
+            {name:'Internet', amount:0},
+            {name:'Seguro', amount:0}
+          ]
+        },
+        {
+          name: 'Alimentación',
+          rows: [
+            {name:'Supermercado', amount:0},
+            {name:'Salir a comer', amount:0}
+          ]
+        },
+        {
+          name: 'Ocio y varios',
+          rows: [
+            {name:'Planes y salidas', amount:0}
+          ]
+        }
+      ]
+    };
+
+    const fmt = new Intl.NumberFormat('es-ES', {style:'currency', currency:'EUR'});
+    const money = n => fmt.format(Number(n || 0));
+
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, s => ({
+        '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+      }[s]));
+    }
+
+    function getNumbers(){
+      const salaryA = Number(document.getElementById('salaryA').value || 0);
+      const salaryB = Number(document.getElementById('salaryB').value || 0);
+      const paysA = Number(document.getElementById('paysA').value || 12);
+      const paysB = Number(document.getElementById('paysB').value || 12);
+      const monthlyA = salaryA * paysA / 12;
+      const monthlyB = salaryB * paysB / 12;
+      const incomeTotal = monthlyA + monthlyB;
+      const pctA = incomeTotal ? monthlyA / incomeTotal : 0.5;
+      const pctB = incomeTotal ? monthlyB / incomeTotal : 0.5;
+      const expensesTotal = state.categories.reduce((acc, c) => acc + c.rows.reduce((s, r) => s + Number(r.amount || 0), 0), 0);
+      const individualTotalA = state.individualA.reduce((s, r) => s + Number(r.amount || 0), 0);
+      const individualTotalB = state.individualB.reduce((s, r) => s + Number(r.amount || 0), 0);
+      const payA = expensesTotal * pctA;
+      const payB = expensesTotal * pctB;
+      const freeA = monthlyA - payA - individualTotalA;
+      const freeB = monthlyB - payB - individualTotalB;
+      return {monthlyA, monthlyB, pctA, pctB, expensesTotal, individualTotalA, individualTotalB, payA, payB, freeA, freeB};
+    }
+
+    function renderStaticLists(){
+      renderCategories();
+      renderIndividual();
+      updateTotals();
+    }
+
+    function updateTotals(){
+      const n = getNumbers();
+
+      document.getElementById('monthlyA').textContent = money(n.monthlyA) + '/mes';
+      document.getElementById('monthlyB').textContent = money(n.monthlyB) + '/mes';
+
+      document.getElementById('barA').style.width = (n.pctA * 100).toFixed(1) + '%';
+      document.getElementById('barB').style.width = (n.pctB * 100).toFixed(1) + '%';
+      document.getElementById('pctA').textContent = 'Persona 1 ' + (n.pctA * 100).toFixed(1) + '%';
+      document.getElementById('pctB').textContent = 'Persona 2 ' + (n.pctB * 100).toFixed(1) + '%';
+
+      document.getElementById('summaryCards').innerHTML = `
+        <div class="metric">
+          <div class="k">Total gastos compartidos</div>
+          <div class="v">${money(n.expensesTotal)}</div>
+          <div class="sub">Vivienda + alimentación + ocio común</div>
+        </div>
+        <div class="metric">
+          <div class="k">Persona 1 paga</div>
+          <div class="v javi">${money(n.payA)}</div>
+          <div class="sub">${(n.pctA * 100).toFixed(1)}% del total</div>
+        </div>
+        <div class="metric">
+          <div class="k">Persona 2 paga</div>
+          <div class="v espe">${money(n.payB)}</div>
+          <div class="sub">${(n.pctB * 100).toFixed(1)}% del total</div>
+        </div>
+      `;
+
+      updateCategoryTotals(n);
+      updateSummary(n);
+      updateIndividualTotals(n);
+      updateFree(n);
+    }
+
+    function renderCategories(){
+      const el = document.getElementById('categories');
+      el.innerHTML = '';
+
+      state.categories.forEach((category, ci) => {
+        const div = document.createElement('div');
+        div.className = 'category';
+        div.innerHTML = `
+          <div class="category-head">
+            <input class="category-title" value="${escapeHtml(category.name)}"
+              oninput="updateCategoryName(${ci}, this.value)">
+            <div id="categoryTotal-${ci}" class="category-total"></div>
+            <button class="small danger" onclick="removeCategory(${ci})">🗑</button>
+          </div>
+          <div class="row header"><div>Concepto</div><div>€/mes</div><div></div></div>
+          <div id="categoryRows-${ci}"></div>
+          <span class="add-row" onclick="addRow(${ci})">+ Añadir línea</span>
+        `;
+        el.appendChild(div);
+        renderRows(ci);
+      });
+    }
+
+    function renderRows(ci){
+      const container = document.getElementById(`categoryRows-${ci}`);
+      container.innerHTML = state.categories[ci].rows.map((row, ri) => `
+        <div class="row">
+          <input value="${escapeHtml(row.name)}" oninput="updateRowName(${ci}, ${ri}, this.value)">
+          <input type="number" value="${row.amount}" min="0" step="1" oninput="updateRowAmount(${ci}, ${ri}, this.value)">
+          <button class="small danger" onclick="removeRow(${ci}, ${ri})">×</button>
+        </div>
+      `).join('');
+    }
+
+    function updateCategoryTotals(n){
+      state.categories.forEach((category, ci) => {
+        const total = category.rows.reduce((s, r) => s + Number(r.amount || 0), 0);
+        const node = document.getElementById(`categoryTotal-${ci}`);
+        if (node) node.textContent = money(total);
+      });
+    }
+
+    function updateSummary(n){
+      document.getElementById('summaryTable').innerHTML = state.categories.map(c => {
+        const total = c.rows.reduce((s, r) => s + Number(r.amount || 0), 0);
+        return `
+          <tr>
+            <td><strong>${escapeHtml(c.name)}</strong></td>
+            <td class="right">${money(total)}</td>
+            <td class="right" style="color:var(--javi);font-weight:900">${money(total * n.pctA)}</td>
+            <td class="right" style="color:var(--espe);font-weight:900">${money(total * n.pctB)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderIndividual(){
+      document.getElementById('individualRowsA').innerHTML = state.individualA.map((row, i) => `
+        <div class="row">
+          <input value="${escapeHtml(row.name)}" oninput="updateIndividualName('A', ${i}, this.value)">
+          <input type="number" value="${row.amount}" min="0" step="1" oninput="updateIndividualAmount('A', ${i}, this.value)">
+          <button class="small danger" onclick="removeIndividualRow('A', ${i})">×</button>
+        </div>
+      `).join('');
+
+      document.getElementById('individualRowsB').innerHTML = state.individualB.map((row, i) => `
+        <div class="row">
+          <input value="${escapeHtml(row.name)}" oninput="updateIndividualName('B', ${i}, this.value)">
+          <input type="number" value="${row.amount}" min="0" step="1" oninput="updateIndividualAmount('B', ${i}, this.value)">
+          <button class="small danger" onclick="removeIndividualRow('B', ${i})">×</button>
+        </div>
+      `).join('');
+    }
+
+    function updateIndividualTotals(n){
+      document.getElementById('individualTotalA').textContent = money(n.individualTotalA) + '/mes';
+      document.getElementById('individualTotalB').textContent = money(n.individualTotalB) + '/mes';
+    }
+
+    function updateFree(n){
+      document.getElementById('freeA').textContent = money(n.freeA);
+      document.getElementById('freeB').textContent = money(n.freeB);
+      document.getElementById('freeADetail').textContent = money(n.monthlyA) + ' ingresos - ' + money(n.payA) + ' gastos comunes - ' + money(n.individualTotalA) + ' gastos individuales';
+      document.getElementById('freeBDetail').textContent = money(n.monthlyB) + ' ingresos - ' + money(n.payB) + ' gastos comunes - ' + money(n.individualTotalB) + ' gastos individuales';
+
+      const lower = Math.min(n.freeA, n.freeB);
+      const diff = Math.abs(n.freeA - n.freeB);
+      let advice = '';
+
+      if (lower >= 1000) {
+        advice = `<div class="note"><strong>Lectura rápida:</strong> el reparto se ve bastante sano. Hay margen para ahorrar y seguir teniendo vida.</div>`;
+      } else if (lower >= 700) {
+        advice = `<div class="warn-note"><strong>Lectura rápida:</strong> viable, pero con presupuesto. Conviene controlar gastos flexibles.</div>`;
+      } else if (lower > 0) {
+        advice = `<div class="warn-note"><strong>Lectura rápida:</strong> cuidado. El dinero libre queda ajustado. Revisad gastos comunes o individuales antes de decidir.</div>`;
+      } else {
+        advice = `<div class="warn-note"><strong>Lectura rápida:</strong> completa ingresos y gastos para ver una lectura realista.</div>`;
+      }
+
+      if (diff > 350) {
+        advice += `<div class="warn-note"><strong>Ojo:</strong> después de gastos individuales, la diferencia de dinero libre es de ${money(diff)}.</div>`;
+      }
+
+      document.getElementById('advice').innerHTML = advice;
+    }
+
+    function showTab(tab){
+      document.getElementById('expensesPanel').classList.toggle('hidden', tab !== 'expenses');
+      document.getElementById('summaryPanel').classList.toggle('hidden', tab !== 'summary');
+      document.getElementById('individualPanel').classList.toggle('hidden', tab !== 'individual');
+      document.getElementById('freePanel').classList.toggle('hidden', tab !== 'free');
+      document.getElementById('tabExpenses').classList.toggle('active', tab === 'expenses');
+      document.getElementById('tabSummary').classList.toggle('active', tab === 'summary');
+      document.getElementById('tabIndividual').classList.toggle('active', tab === 'individual');
+      document.getElementById('tabFree').classList.toggle('active', tab === 'free');
+    }
+
+    function updateCategoryName(ci, value){ state.categories[ci].name = value; updateTotals(); }
+    function updateRowName(ci, ri, value){ state.categories[ci].rows[ri].name = value; updateTotals(); }
+    function updateRowAmount(ci, ri, value){ state.categories[ci].rows[ri].amount = Number(value || 0); updateTotals(); }
+
+    function addCategory(){
+      state.categories.push({name:'Nueva categoría', rows:[{name:'Nuevo gasto', amount:0}]});
+      renderStaticLists();
+    }
+
+    function removeCategory(ci){
+      state.categories.splice(ci, 1);
+      renderStaticLists();
+    }
+
+    function addRow(ci){
+      state.categories[ci].rows.push({name:'Nuevo gasto', amount:0});
+      renderStaticLists();
+    }
+
+    function removeRow(ci, ri){
+      state.categories[ci].rows.splice(ri, 1);
+      renderStaticLists();
+    }
+
+    function getIndividualList(person){
+      return person === 'A' ? state.individualA : state.individualB;
+    }
+
+    function updateIndividualName(person, index, value){
+      getIndividualList(person)[index].name = value;
+      updateTotals();
+    }
+
+    function updateIndividualAmount(person, index, value){
+      getIndividualList(person)[index].amount = Number(value || 0);
+      updateTotals();
+    }
+
+    function addIndividualRow(person){
+      getIndividualList(person).push({name:'Nuevo gasto individual', amount:0});
+      renderStaticLists();
+    }
+
+    function removeIndividualRow(person, index){
+      getIndividualList(person).splice(index, 1);
+      renderStaticLists();
+    }
+
+    ['salaryA','salaryB','paysA','paysB'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updateTotals);
+      document.getElementById(id).addEventListener('change', updateTotals);
+    });
+
+    renderStaticLists();
+  </script>
+</body>
+</html>
