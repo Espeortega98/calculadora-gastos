@@ -3,15 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Calculadora de gastos en pareja</title>
+  <title>Calculadora de gastos</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
   <style>
     :root{
       --bg:#0f172a;
       --muted:#94a3b8;
       --text:#f8fafc;
       --line:rgba(255,255,255,.12);
-      --javi:#38bdf8;
-      --espe:#fb4d8b;
+      --p1:#38bdf8;
+      --p2:#fb4d8b;
       --shadow: 0 20px 60px rgba(0,0,0,.35);
       --radius:22px;
     }
@@ -35,10 +36,12 @@
     header{
       display:flex;
       justify-content:space-between;
-      gap:18px;
-      align-items:flex-start;
-      margin-bottom:22px;
+      gap:28px;
+      align-items:center;
+      margin-bottom:26px;
     }
+
+    .hero-copy{max-width:720px}
 
     h1{
       margin:0 0 8px;
@@ -63,6 +66,33 @@
       color:var(--muted);
       font-size:13px;
       white-space:nowrap;
+    }
+
+    .hero-art{
+      position:relative;
+      flex:0 0 clamp(150px,22vw,245px);
+      aspect-ratio:1;
+      border-radius:28px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:0 22px 70px rgba(0,0,0,.4);
+      background:linear-gradient(135deg, rgba(251,77,139,.2), rgba(56,189,248,.18));
+    }
+
+    .hero-art img{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:cover;
+    }
+
+    .hero-art .pill{
+      position:absolute;
+      right:12px;
+      bottom:12px;
+      background:rgba(15,23,42,.76);
+      color:#e0f2fe;
+      backdrop-filter:blur(10px);
     }
 
     .grid{
@@ -117,8 +147,28 @@
       margin:0 0 16px;
     }
 
-    .javi{color:var(--javi)}
-    .espe{color:var(--espe)}
+    .name-field{
+      margin-bottom:16px;
+    }
+
+    .name-input{
+      font-size:20px;
+      font-weight:900;
+      padding:12px 14px;
+    }
+
+    .name-input.p1{
+      color:var(--p1);
+      border-color:rgba(56,189,248,.35);
+    }
+
+    .name-input.p2{
+      color:var(--p2);
+      border-color:rgba(251,77,139,.35);
+    }
+
+    .p1{color:var(--p1)}
+    .p2{color:var(--p2)}
 
     .monthly{
       margin-top:14px;
@@ -131,8 +181,8 @@
       font-size:14px;
     }
 
-    .monthly.javi{background:rgba(56,189,248,.15);color:#7dd3fc}
-    .monthly.espe{background:rgba(251,77,139,.15);color:#f9a8d4}
+    .monthly.p1{background:rgba(56,189,248,.15);color:#7dd3fc}
+    .monthly.p2{background:rgba(251,77,139,.15);color:#f9a8d4}
 
     .bar-wrap{margin:18px 0 12px}
 
@@ -145,8 +195,8 @@
       border:1px solid rgba(255,255,255,.15);
     }
 
-    .bar-javi{background:linear-gradient(90deg,#0284c7,#38bdf8)}
-    .bar-espe{background:linear-gradient(90deg,#fb4d8b,#f472b6)}
+    .bar-p1{background:linear-gradient(90deg,#0284c7,#38bdf8)}
+    .bar-p2{background:linear-gradient(90deg,#fb4d8b,#f472b6)}
 
     .bar-labels{
       display:flex;
@@ -357,30 +407,52 @@
 
     @media (max-width:850px){
       body{padding:16px}
-      header{display:block}
+      header{
+        display:grid;
+        grid-template-columns:1fr auto;
+        gap:16px;
+        align-items:center;
+      }
+      .hero-art{
+        width:96px;
+        flex-basis:auto;
+        border-radius:22px;
+      }
+      .hero-art .pill{display:none}
       .grid,.summary,.free-grid,.individual-grid{grid-template-columns:1fr}
       .person{grid-template-columns:1fr}
       .row{grid-template-columns:1fr 120px 40px}
-      .pill{display:inline-block;margin-top:14px}
+    }
+
+    @media (max-width:520px){
+      header{grid-template-columns:1fr}
+      .hero-art{
+        width:100%;
+        max-width:230px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="app">
     <header>
-      <div>
-        <h1>Calculadora de gastos en pareja</h1>
+      <div class="hero-copy">
+        <h1>Calculadora de gastos</h1>
         <p class="subtitle">
           Reparte los gastos compartidos de forma proporcional a los ingresos de cada uno.
-          Plantilla pública sin datos reales predefinidos.
         </p>
       </div>
-      <div class="pill">Plantilla editable</div>
+      <div class="hero-art">
+        <img src="assets/favicon.png" alt="Icono de calculadora de gastos">
+      </div>
     </header>
 
     <section class="grid">
       <div class="card">
-        <p class="name javi">Persona 1</p>
+        <div class="name-field">
+          <label>Nombre</label>
+          <input id="nameA" class="name-input p1" value="Persona 1">
+        </div>
         <div class="person">
           <div>
             <label>Salario (€ por paga)</label>
@@ -394,11 +466,14 @@
             </select>
           </div>
         </div>
-        <div id="monthlyA" class="monthly javi"></div>
+        <div id="monthlyA" class="monthly p1"></div>
       </div>
 
       <div class="card">
-        <p class="name espe">Persona 2</p>
+        <div class="name-field">
+          <label>Nombre</label>
+          <input id="nameB" class="name-input p2" value="Persona 2">
+        </div>
         <div class="person">
           <div>
             <label>Salario (€ por paga)</label>
@@ -412,14 +487,14 @@
             </select>
           </div>
         </div>
-        <div id="monthlyB" class="monthly espe"></div>
+        <div id="monthlyB" class="monthly p2"></div>
       </div>
     </section>
 
     <div class="bar-wrap">
       <div class="bar">
-        <div id="barA" class="bar-javi"></div>
-        <div id="barB" class="bar-espe"></div>
+        <div id="barA" class="bar-p1"></div>
+        <div id="barB" class="bar-p2"></div>
       </div>
       <div class="bar-labels">
         <span id="pctA"></span>
@@ -447,8 +522,8 @@
           <tr>
             <th>Categoría</th>
             <th class="right">Total</th>
-            <th class="right">Paga Persona 1</th>
-            <th class="right">Paga Persona 2</th>
+            <th id="summaryPayA" class="right">Paga Persona 1</th>
+            <th id="summaryPayB" class="right">Paga Persona 2</th>
           </tr>
         </thead>
         <tbody id="summaryTable"></tbody>
@@ -459,20 +534,20 @@
       <div class="individual-grid">
         <div class="individual-card">
           <div class="individual-head">
-            <h3 class="javi">Gastos individuales de Persona 1</h3>
+            <h3 id="individualTitleA" class="p1">Gastos individuales de Persona 1</h3>
             <div id="individualTotalA" class="individual-total"></div>
           </div>
           <div id="individualRowsA"></div>
-          <button onclick="addIndividualRow('A')">+ Añadir gasto de Persona 1</button>
+          <button id="addIndividualA" onclick="addIndividualRow('A')">+ Añadir gasto de Persona 1</button>
         </div>
 
         <div class="individual-card">
           <div class="individual-head">
-            <h3 class="espe">Gastos individuales de Persona 2</h3>
+            <h3 id="individualTitleB" class="p2">Gastos individuales de Persona 2</h3>
             <div id="individualTotalB" class="individual-total"></div>
           </div>
           <div id="individualRowsB"></div>
-          <button onclick="addIndividualRow('B')">+ Añadir gasto de Persona 2</button>
+          <button id="addIndividualB" onclick="addIndividualRow('B')">+ Añadir gasto de Persona 2</button>
         </div>
       </div>
 
@@ -484,13 +559,13 @@
     <section id="freePanel" class="card hidden">
       <div class="free-grid">
         <div class="free-card">
-          <h3 class="javi">Persona 1</h3>
-          <div id="freeA" class="big-number" style="color:var(--javi)"></div>
+          <h3 id="freeTitleA" class="p1">Persona 1</h3>
+          <div id="freeA" class="big-number" style="color:var(--p1)"></div>
           <div id="freeADetail" class="muted"></div>
         </div>
         <div class="free-card">
-          <h3 class="espe">Persona 2</h3>
-          <div id="freeB" class="big-number" style="color:var(--espe)"></div>
+          <h3 id="freeTitleB" class="p2">Persona 2</h3>
+          <div id="freeB" class="big-number" style="color:var(--p2)"></div>
           <div id="freeBDetail" class="muted"></div>
         </div>
       </div>
@@ -548,6 +623,24 @@
       }[s]));
     }
 
+    function getNames(){
+      const nameA = document.getElementById('nameA').value.trim() || 'Persona 1';
+      const nameB = document.getElementById('nameB').value.trim() || 'Persona 2';
+      return {nameA, nameB};
+    }
+
+    function updateNameLabels(){
+      const {nameA, nameB} = getNames();
+      document.getElementById('summaryPayA').textContent = 'Paga ' + nameA;
+      document.getElementById('summaryPayB').textContent = 'Paga ' + nameB;
+      document.getElementById('individualTitleA').textContent = 'Gastos individuales de ' + nameA;
+      document.getElementById('individualTitleB').textContent = 'Gastos individuales de ' + nameB;
+      document.getElementById('addIndividualA').textContent = '+ Añadir gasto de ' + nameA;
+      document.getElementById('addIndividualB').textContent = '+ Añadir gasto de ' + nameB;
+      document.getElementById('freeTitleA').textContent = nameA;
+      document.getElementById('freeTitleB').textContent = nameB;
+    }
+
     function getNumbers(){
       const salaryA = Number(document.getElementById('salaryA').value || 0);
       const salaryB = Number(document.getElementById('salaryB').value || 0);
@@ -576,14 +669,16 @@
 
     function updateTotals(){
       const n = getNumbers();
+      const {nameA, nameB} = getNames();
+      updateNameLabels();
 
       document.getElementById('monthlyA').textContent = money(n.monthlyA) + '/mes';
       document.getElementById('monthlyB').textContent = money(n.monthlyB) + '/mes';
 
       document.getElementById('barA').style.width = (n.pctA * 100).toFixed(1) + '%';
       document.getElementById('barB').style.width = (n.pctB * 100).toFixed(1) + '%';
-      document.getElementById('pctA').textContent = 'Persona 1 ' + (n.pctA * 100).toFixed(1) + '%';
-      document.getElementById('pctB').textContent = 'Persona 2 ' + (n.pctB * 100).toFixed(1) + '%';
+      document.getElementById('pctA').textContent = nameA + ' ' + (n.pctA * 100).toFixed(1) + '%';
+      document.getElementById('pctB').textContent = nameB + ' ' + (n.pctB * 100).toFixed(1) + '%';
 
       document.getElementById('summaryCards').innerHTML = `
         <div class="metric">
@@ -592,13 +687,13 @@
           <div class="sub">Vivienda + alimentación + ocio común</div>
         </div>
         <div class="metric">
-          <div class="k">Persona 1 paga</div>
-          <div class="v javi">${money(n.payA)}</div>
+          <div class="k">${escapeHtml(nameA)} paga</div>
+          <div class="v p1">${money(n.payA)}</div>
           <div class="sub">${(n.pctA * 100).toFixed(1)}% del total</div>
         </div>
         <div class="metric">
-          <div class="k">Persona 2 paga</div>
-          <div class="v espe">${money(n.payB)}</div>
+          <div class="k">${escapeHtml(nameB)} paga</div>
+          <div class="v p2">${money(n.payB)}</div>
           <div class="sub">${(n.pctB * 100).toFixed(1)}% del total</div>
         </div>
       `;
@@ -658,8 +753,8 @@
           <tr>
             <td><strong>${escapeHtml(c.name)}</strong></td>
             <td class="right">${money(total)}</td>
-            <td class="right" style="color:var(--javi);font-weight:900">${money(total * n.pctA)}</td>
-            <td class="right" style="color:var(--espe);font-weight:900">${money(total * n.pctB)}</td>
+            <td class="right" style="color:var(--p1);font-weight:900">${money(total * n.pctA)}</td>
+            <td class="right" style="color:var(--p2);font-weight:900">${money(total * n.pctB)}</td>
           </tr>
         `;
       }).join('');
@@ -774,7 +869,7 @@
       renderStaticLists();
     }
 
-    ['salaryA','salaryB','paysA','paysB'].forEach(id => {
+    ['nameA','nameB','salaryA','salaryB','paysA','paysB'].forEach(id => {
       document.getElementById(id).addEventListener('input', updateTotals);
       document.getElementById(id).addEventListener('change', updateTotals);
     });
